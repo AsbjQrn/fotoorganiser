@@ -6,5 +6,5 @@ import java.time.LocalDate;
 public interface Directorymaker {
 
 
-    void makeDirectoryPath(LocalDate localDate) throws IOException;
+    String makeDirectoryPath(LocalDate localDate) throws IOException;
 }

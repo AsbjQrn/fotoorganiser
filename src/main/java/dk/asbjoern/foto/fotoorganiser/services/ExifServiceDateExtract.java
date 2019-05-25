@@ -2,26 +2,21 @@ package dk.asbjoern.foto.fotoorganiser.services;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
-import com.drew.metadata.exif.ExifSubIFDDescriptor;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
-import dk.asbjoern.foto.fotoorganiser.beans.Image;
-import dk.asbjoern.foto.fotoorganiser.services.interfaces.ExifDateService;
+import dk.asbjoern.foto.fotoorganiser.services.interfaces.ExifService;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
 
 @Service
-public class ExifServiceDateExtract implements ExifDateService {
+public class ExifServiceDateExtract implements ExifService {
 
 
     public LocalDate readExif(File file) {

@@ -4,7 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.time.LocalDate;
 
-public interface ExifDateService {
+public interface ExifService {
 
     LocalDate readExif(File file);
 }

@@ -24,12 +24,12 @@ public class DirectoryMakerFromDate implements Directorymaker {
 
     public void DirectoryMakerFromDate() throws IOException {
 
-        Path path = Paths.get("/mediefiler");
+        Path path = Paths.get(tilBibliotek);
 
 
         if (!Files.exists(path)) {
 
-            Files.createDirectory(path);
+            Files.createDirectories(path);
             System.out.println("Directory mediefiler created");
         } else {
 
@@ -50,7 +50,7 @@ public class DirectoryMakerFromDate implements Directorymaker {
     }
 
     @Override
-    public void makeDirectoryPath(LocalDate localDate) throws IOException {
+    public String makeDirectoryPath(LocalDate localDate) throws IOException {
 
 
         StringBuilder stringBuilder = new StringBuilder(tilBibliotek);
@@ -73,7 +73,12 @@ public class DirectoryMakerFromDate implements Directorymaker {
 
         System.out.println("bibliotek dannes: " + stringBuilder.toString());
 
-        makeIfNotExists(stringBuilder.toString());
+
+        String newLocation = stringBuilder.toString();
+
+        makeIfNotExists(newLocation);
+
+        return newLocation;
 
 
     }

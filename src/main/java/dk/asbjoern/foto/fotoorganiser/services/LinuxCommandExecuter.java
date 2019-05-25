@@ -2,27 +2,31 @@ package dk.asbjoern.foto.fotoorganiser.services;
 
 
 import dk.asbjoern.foto.fotoorganiser.enums.LinuxCommand;
+import dk.asbjoern.foto.fotoorganiser.services.interfaces.CommandExecuter;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 @Service
-public class FileMover {
+public class LinuxCommandExecuter implements CommandExecuter {
 
-    public void moveFile(String stiFra, String StiTil, LinuxCommand command){
+
+    @Override
+    public String executeCommand(List<String> commandList) {
 
         ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command(command.toString(), stiFra, StiTil );
-//        processBuilder.command("mv", "/media/asbjorn/925bd160-9cb1-4f8c-b329-1a01a1555203/Documents/gavl", "/media/asbjorn/925bd160-9cb1-4f8c-b329-1a01a1555203/" );
+        processBuilder.command(commandList);
+
+        StringBuilder output = new StringBuilder();
 
         try {
 
 
             Process process = processBuilder.start();
 
-            StringBuilder output = new StringBuilder();
 
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()));
@@ -34,11 +38,11 @@ public class FileMover {
 
             int exitVal = process.waitFor();
             if (exitVal == 0) {
-                System.out.println("Success!");
+                System.out.println("Command success!");
                 System.out.println(output);
-//                System.exit(0);
+
             } else {
-                System.out.println("flyt af " + stiFra + " lykkedes ikke");
+                System.out.println("Linux process sluttede med kode: " + exitVal);
             }
 
 
@@ -48,9 +52,11 @@ public class FileMover {
             e.printStackTrace();
         }
 
+
+        return output.toString();
+
+
     }
-
-
 
 
 }
