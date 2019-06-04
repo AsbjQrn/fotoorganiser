@@ -1,7 +1,6 @@
 package dk.asbjoern.foto.fotoorganiser.services;
 
 
-import dk.asbjoern.foto.fotoorganiser.enums.LinuxCommand;
 import dk.asbjoern.foto.fotoorganiser.services.interfaces.CommandExecuter;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +42,7 @@ public class LinuxCommandExecuter implements CommandExecuter {
 
             } else {
                 System.out.println("Linux process sluttede med kode: " + exitVal);
+                System.exit(1);
             }
 
 
@@ -53,8 +53,8 @@ public class LinuxCommandExecuter implements CommandExecuter {
         }
 
 
-        return output.toString();
-
+        String result = output.toString();
+        return result.substring(0, result.indexOf(" ") + 1);
 
     }
 

@@ -19,7 +19,7 @@ import java.util.*;
 public class ExifServiceDateExtract implements ExifService {
 
 
-    public LocalDate readExif(File file) {
+    public Optional<LocalDate> readExif(File file) {
 
 
         System.out.println("Extracter Exif fra: " + file.toString());
@@ -63,7 +63,7 @@ public class ExifServiceDateExtract implements ExifService {
         }
 
 
-        return localDate;
+        return Optional.ofNullable(localDate);
 
     }
 

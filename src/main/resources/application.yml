@@ -1,8 +1,9 @@
 #billedbiblioteker: /media/asbjorn/925bd160-9cb1-4f8c-b329-1a01a1555203/Billeder eksport til linux, /media/asbjorn/925bd160-9cb1-4f8c-b329-1a01a1555203/Iphoto og foto
-billedbiblioteker: /home/asbjorn/Skrivebord/fraMappe
+billedbiblioteker: /media/asbjorn/925bd160-9cb1-4f8c-b329-1a01a1555203/Iphoto og foto
+#billedbiblioteker: /home/asbjorn/Skrivebord/fraMappe
 
-#tilBibliotek: /media/asbjorn/925bd160-9cb1-4f8c-b329-1a01a1555203/mediefiler
-tilBibliotek: /home/asbjorn/Skrivebord/tilMappe
+tilBibliotek: /media/asbjorn/925bd160-9cb1-4f8c-b329-1a01a1555203/mediefiler
+#tilBibliotek: /home/asbjorn/Skrivebord/tilMappe
 
 
 #

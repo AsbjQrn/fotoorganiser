@@ -3,6 +3,7 @@ package dk.asbjoern.foto.fotoorganiser.services;
 
 import dk.asbjoern.foto.fotoorganiser.services.interfaces.Directorymaker;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.Optional;
 
 
 @Service
@@ -50,24 +52,29 @@ public class DirectoryMakerFromDate implements Directorymaker {
     }
 
     @Override
-    public String makeDirectoryPath(LocalDate localDate) throws IOException {
+    public String makeDirectoryPathBasedOnLocalDate(Optional<LocalDate> localDate) throws IOException {
 
 
         StringBuilder stringBuilder = new StringBuilder(tilBibliotek);
 
-        if (localDate == null) {
+        if (localDate.isPresent()) {
+
+
 
 
             stringBuilder.append("/");
-            stringBuilder.append("noExif");
+            stringBuilder.append(localDate.get().getYear());
+            stringBuilder.append("/");
+            stringBuilder.append(localDate.get().getMonth());
+
+
 
 
         } else {
 
             stringBuilder.append("/");
-            stringBuilder.append(localDate.getYear());
-            stringBuilder.append("/");
-            stringBuilder.append(localDate.getMonth());
+            stringBuilder.append("noExif");
+
 
         }
 
