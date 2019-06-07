@@ -24,6 +24,7 @@ public class Runner {
     private int fileCounter;
     private int duplicateCounter;
     private int originalCounter;
+    private int directoryCounter;
 
     @Value("${billedbiblioteker}")
     private String[] billedbiblioteker;
@@ -45,6 +46,10 @@ public class Runner {
 
                 File file = p.toFile();
 
+                if (file.isDirectory()) {
+
+                    directoryCounter++;
+                }
                 if (file.isFile()) {
                     fileCounter++;
                     Optional<LocalDate> localDateOptional = exifDateService.readExif(file);
@@ -60,7 +65,7 @@ public class Runner {
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
-                        System.out.println(String.format("Antal filer: %d, Antal duplikater: %d, antal originaler: %d " , fileCounter, duplicateCounter, originalCounter));
+                        System.out.println(String.format("Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", fileCounter, duplicateCounter, originalCounter));
                         System.exit(100);
 
                     }
@@ -78,7 +83,7 @@ public class Runner {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            System.out.println(String.format("Antal filer: %d, Antal duplikater: %d, antal originaler: %d " , fileCounter, duplicateCounter, originalCounter));
+            System.out.println(String.format("Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", directoryCounter, fileCounter, duplicateCounter, originalCounter));
             System.exit(0);
 
         }
