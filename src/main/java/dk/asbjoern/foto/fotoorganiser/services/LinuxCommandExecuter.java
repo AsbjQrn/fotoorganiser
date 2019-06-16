@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+
 @Service
 public class LinuxCommandExecuter implements CommandExecuter {
 
@@ -37,7 +38,7 @@ public class LinuxCommandExecuter implements CommandExecuter {
 
             int exitVal = process.waitFor();
             if (exitVal == 0) {
-                System.out.println("Command success!");
+                System.out.println("Command " + commandList + " succesfull");
                 System.out.println(output);
 
             } else {

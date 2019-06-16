@@ -1,80 +1,77 @@
 package dk.asbjoern.foto.fotoorganiser.runner;
 
+import dk.asbjoern.foto.fotoorganiser.beans.Image;
+import dk.asbjoern.foto.fotoorganiser.imagefactory.ImageFactory;
 import dk.asbjoern.foto.fotoorganiser.services.LinuxCommandExecuter;
 import dk.asbjoern.foto.fotoorganiser.services.interfaces.CommandBuilder;
-import dk.asbjoern.foto.fotoorganiser.services.interfaces.Directorymaker;
-import dk.asbjoern.foto.fotoorganiser.services.interfaces.ExifService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class Runner {
 
-    private ExifService exifDateService;
-    private Directorymaker directorymaker;
     private LinuxCommandExecuter linuxCommandExecuter;
     private CommandBuilder commandBuilder;
+    private ImageFactory imageFactory;
     private int fileCounter;
     private int duplicateCounter;
     private int originalCounter;
     private int directoryCounter;
+    private int totalCounter;
+    ;
 
     @Value("${billedbiblioteker}")
     private String[] billedbiblioteker;
 
-    public Runner(ExifService exifDateService, Directorymaker directorymaker, LinuxCommandExecuter linuxCommandExecuter, CommandBuilder commandBuilder) {
-        this.exifDateService = exifDateService;
-        this.directorymaker = directorymaker;
+    public Runner(ImageFactory imageFactory, LinuxCommandExecuter linuxCommandExecuter, CommandBuilder commandBuilder) {
+        this.imageFactory = imageFactory;
         this.linuxCommandExecuter = linuxCommandExecuter;
         this.commandBuilder = commandBuilder;
     }
 
-    public void run() throws IOException {
+    public void run() {
 
 
         try {
             Map<String, List<String>> moveCommands = new HashMap<>();
 
-            Files.walk(Paths.get(billedbiblioteker[0])).forEach(p -> {
+            Files.walk(Paths.get(billedbiblioteker[0])).forEach(path -> {
 
-                File file = p.toFile();
+                totalCounter++;
 
-                if (file.isDirectory()) {
 
-                    directoryCounter++;
-                }
-                if (file.isFile()) {
+                if (path.toFile().isFile()) {
                     fileCounter++;
-                    Optional<LocalDate> localDateOptional = exifDateService.readExif(file);
-                    String pathToNewLocation;
-                    String md5sum;
+
+
+                    Image image = null;
                     try {
-                        pathToNewLocation = directorymaker.makeDirectoryPathBasedOnLocalDate(localDateOptional);
-                        md5sum = linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", file.getAbsolutePath()));
-                        if (commandBuilder.addToCommandMap(md5sum, file.getAbsolutePath(), pathToNewLocation, moveCommands) != null) {
-                            duplicateCounter++;
-                        } else {
-                            originalCounter++;
-                        }
+                        image = imageFactory.createImage(path);
                     } catch (IOException e) {
                         e.printStackTrace();
-                        System.out.println(String.format("Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", fileCounter, duplicateCounter, originalCounter));
-                        System.exit(100);
-
                     }
 
+                    if (commandBuilder.addToCommandMap(image.getMd5sum(), image.getOriginalLocation(), image.createAndGetNewLocation(), moveCommands) != null) {
+                        duplicateCounter++;
+                    } else {
+                        originalCounter++;
+                    }
+
+                } else {
+
+                    directoryCounter++;
                 }
 
             });
 
-            System.out.println();
+            System.out.println("Starter billedflytning");
             moveCommands.entrySet().stream().forEach(e ->
 
                     linuxCommandExecuter.executeCommand(e.getValue())
@@ -83,7 +80,7 @@ public class Runner {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            System.out.println(String.format("Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", directoryCounter, fileCounter, duplicateCounter, originalCounter));
+            System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
             System.exit(0);
 
         }
