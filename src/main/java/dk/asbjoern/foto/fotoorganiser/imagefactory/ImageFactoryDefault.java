@@ -19,8 +19,6 @@ public class ImageFactoryDefault implements ImageFactory {
     private ExifService exifService;
     private DirectoryMakerFactory directoryMakerFactory;
 
-    @Value("${billedbiblioteker}")
-    private String[] billedbiblioteker;
 
     private LinuxCommandExecuter linuxCommandExecuter;
 
@@ -31,12 +29,14 @@ public class ImageFactoryDefault implements ImageFactory {
     }
 
     @Override
-    public Image createImage(Path path) throws IOException {
-
+    public Image createImage(Path path, String sourceBibliotek) throws IOException {
 
         Image image = new Image();
 
+        image.setSourceBibliotek(sourceBibliotek);
+
         image.setParentPathOriginalLocation(path.getParent());
+
         image.setFilename(path.getFileName());
 
         image.setOriginalLocation(path.toFile().getAbsolutePath());

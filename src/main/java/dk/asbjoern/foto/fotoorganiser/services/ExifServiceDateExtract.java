@@ -1,6 +1,5 @@
 package dk.asbjoern.foto.fotoorganiser.services;
 
-import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
@@ -8,11 +7,13 @@ import com.drew.metadata.exif.ExifSubIFDDirectory;
 import dk.asbjoern.foto.fotoorganiser.services.interfaces.ExifService;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Objects;
+import java.util.Optional;
 
 
 @Service
@@ -27,7 +28,6 @@ class ExifServiceDateExtract implements ExifService {
         }
 
         Date date = null;
-        LocalDate localDate = null;
 
         try {
 
@@ -53,21 +53,19 @@ class ExifServiceDateExtract implements ExifService {
                 }
             }
 
-            localDate = convertToLocalDateViaInstant(date);
+
         } catch (ImageProcessingException | IOException e) {
             e.printStackTrace();
         } catch (Exception n) {
             n.printStackTrace();
         }
 
-
-        return Optional.ofNullable(localDate);
+        return date == null ? Optional.ofNullable(null) : Optional.of(convertToLocalDateViaInstant(date));
 
     }
 
 
     public LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
-        Objects.requireNonNull(dateToConvert);
         return dateToConvert.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();

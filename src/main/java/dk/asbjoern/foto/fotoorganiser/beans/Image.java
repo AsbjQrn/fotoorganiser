@@ -14,6 +14,8 @@ public class Image {
 
     private String md5sum;
 
+    private String sourceBibliotek;
+
     private String originalLocation;
 
     private String parentPathToNewLocation;
@@ -86,5 +88,11 @@ public class Image {
         return getParentPathToNewLocation().toString() + "/" +  filename.toString();
     }
 
+    public String getSourceBibliotek() {
+        return sourceBibliotek;
+    }
 
+    public void setSourceBibliotek(String sourceBibliotek) {
+        this.sourceBibliotek = sourceBibliotek;
+    }
 }

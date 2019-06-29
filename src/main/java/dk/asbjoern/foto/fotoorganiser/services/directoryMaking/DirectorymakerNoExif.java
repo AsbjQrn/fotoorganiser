@@ -12,8 +12,6 @@ import java.io.IOException;
 class DirectorymakerNoExif implements Directorymaker {
 
 
-    @Value("${billedbiblioteker}")
-    private String[] billedbiblioteker;
 
     @Value("${tilBibliotek}")
     String tilBibliotek;
@@ -24,10 +22,10 @@ class DirectorymakerNoExif implements Directorymaker {
         StringBuilder stringBuilder = new StringBuilder(tilBibliotek);
 
         stringBuilder.append("/");
+
         stringBuilder.append("noExif");
 
-
-        stringBuilder.append(image.getParentPathOriginalLocation().toString().substring(billedbiblioteker[0].length()));
+        stringBuilder.append(image.getParentPathOriginalLocation().toString().substring(image.getSourceBibliotek().length()));
 
         String newLocation = stringBuilder.toString();
 

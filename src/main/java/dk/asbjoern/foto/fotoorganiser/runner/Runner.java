@@ -7,12 +7,11 @@ import dk.asbjoern.foto.fotoorganiser.services.interfaces.CommandBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class Runner {
@@ -30,6 +29,9 @@ public class Runner {
     @Value("${billedbiblioteker}")
     private String[] billedbiblioteker;
 
+    @Value("${tilBibliotek}")
+    String tilBibliotek = "";
+
     public Runner(ImageFactory imageFactory, LinuxCommandExecuter linuxCommandExecuter, CommandBuilder commandBuilder) {
         this.imageFactory = imageFactory;
         this.linuxCommandExecuter = linuxCommandExecuter;
@@ -42,34 +44,37 @@ public class Runner {
         try {
             Map<String, List<String>> moveCommands = new HashMap<>();
 
-            Files.walk(Paths.get(billedbiblioteker[0])).forEach(path -> {
+            for (String sourceBibliotek : billedbiblioteker) {
 
-                totalCounter++;
+                Files.walk(Paths.get(sourceBibliotek)).forEach(path -> {
 
-
-                if (path.toFile().isFile()) {
-                    fileCounter++;
+                    totalCounter++;
 
 
-                    Image image = null;
-                    try {
-                        image = imageFactory.createImage(path);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    if (path.toFile().isFile()) {
+                        fileCounter++;
 
-                    if (commandBuilder.addToCommandMap(image.getMd5sum(), image.getOriginalLocation(), image.createAndGetNewLocation(), moveCommands) != null) {
-                        duplicateCounter++;
+
+                        Image image = null;
+                        try {
+                            image = imageFactory.createImage(path, sourceBibliotek);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (commandBuilder.addToCommandMap(image.getMd5sum(), image.getOriginalLocation(), image.createAndGetNewLocation(), moveCommands) != null) {
+                            duplicateCounter++;
+                        } else {
+                            originalCounter++;
+                        }
+
                     } else {
-                        originalCounter++;
+
+                        directoryCounter++;
                     }
 
-                } else {
-
-                    directoryCounter++;
-                }
-
-            });
+                });
+            }
 
             System.out.println("Starter billedflytning");
             moveCommands.entrySet().stream().forEach(e ->
@@ -79,10 +84,59 @@ public class Runner {
             );
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
-            System.exit(0);
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        System.out.println("Laver testoptælling");
+
+        Set<String> testSetSource = new HashSet();
+
+        for (String sourceBibliotek : billedbiblioteker) {
+
+            try {
+
+
+                Files.walk(Paths.get(sourceBibliotek)).forEach(path -> {
+
+                    File fil = path.toFile();
+
+                    if (fil.isFile()) {
+                        testSetSource.add(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())));
+                    }
+                });
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Set<String> testSetDestination = new HashSet();
+
+        try {
+
+
+            Files.walk(Paths.get(tilBibliotek)).forEach(path -> {
+
+                File fil = path.toFile();
+
+                if (fil.isFile()) {
+                    testSetDestination.add(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())));
+                }
+            });
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
+        System.out.println("Kildebibliotekerne indeholder " +  testSetSource.size() +  " antal unikke filer og destinationsmappen indeholder " + testSetDestination.size() + " antal unikke filer.");
+
+        testSetSource.removeAll(testSetDestination);
+
+
+
     }
 }
