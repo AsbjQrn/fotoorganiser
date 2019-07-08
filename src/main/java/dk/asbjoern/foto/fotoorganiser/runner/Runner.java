@@ -1,6 +1,7 @@
 package dk.asbjoern.foto.fotoorganiser.runner;
 
 import dk.asbjoern.foto.fotoorganiser.beans.Image;
+import dk.asbjoern.foto.fotoorganiser.helpers.Loggable;
 import dk.asbjoern.foto.fotoorganiser.imagefactory.ImageFactory;
 import dk.asbjoern.foto.fotoorganiser.services.LinuxCommandExecuter;
 import dk.asbjoern.foto.fotoorganiser.services.interfaces.CommandBuilder;
@@ -14,7 +15,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 @Component
-public class Runner {
+public class Runner implements Loggable {
 
     private LinuxCommandExecuter linuxCommandExecuter;
     private CommandBuilder commandBuilder;
@@ -63,8 +64,10 @@ public class Runner {
                         }
 
                         if (commandBuilder.addToCommandMap(image.getMd5sum(), image.getOriginalLocation(), image.createAndGetNewLocation(), moveCommands) != null) {
+                            logger().info("DUPLICATE: {}", image.toString());
                             duplicateCounter++;
                         } else {
+                            logger().info("ORIGINAL: {}", image.toString());
                             originalCounter++;
                         }
 
@@ -77,9 +80,12 @@ public class Runner {
             }
 
             System.out.println("Starter billedflytning");
-            moveCommands.entrySet().stream().forEach(e ->
+            moveCommands.entrySet().stream().forEach(e -> {
 
-                    linuxCommandExecuter.executeCommand(e.getValue())
+                        logger().info("STARTKOPI: {}", e.getValue().toString());
+                        linuxCommandExecuter.executeCommand(e.getValue());
+
+                    }
 
             );
         } catch (IOException e) {
@@ -132,10 +138,9 @@ public class Runner {
         }
 
         System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
-        System.out.println("Kildebibliotekerne indeholder " +  testSetSource.size() +  " antal unikke filer og destinationsmappen indeholder " + testSetDestination.size() + " antal unikke filer.");
+        System.out.println("Kildebibliotekerne indeholder " + testSetSource.size() + " antal unikke filer og destinationsmappen indeholder " + testSetDestination.size() + " antal unikke filer.");
 
         testSetSource.removeAll(testSetDestination);
-
 
 
     }

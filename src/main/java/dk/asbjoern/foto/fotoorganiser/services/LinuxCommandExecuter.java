@@ -1,6 +1,7 @@
 package dk.asbjoern.foto.fotoorganiser.services;
 
 
+import dk.asbjoern.foto.fotoorganiser.helpers.Loggable;
 import dk.asbjoern.foto.fotoorganiser.services.interfaces.CommandExecuter;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 
 @Service
-public class LinuxCommandExecuter implements CommandExecuter {
+public class LinuxCommandExecuter implements CommandExecuter, Loggable {
 
 
     @Override
@@ -37,19 +38,17 @@ public class LinuxCommandExecuter implements CommandExecuter {
             }
 
             int exitVal = process.waitFor();
-            if (exitVal == 0) {
-                System.out.println("Command " + commandList + " succesfull");
-                System.out.println(output);
-
-            } else {
-                System.out.println("Linux process sluttede med kode: " + exitVal);
+            if (exitVal != 0) {
+                logger().error("Linux process sluttede med fejl {} ", commandList);
                 System.exit(1);
             }
 
 
         } catch (IOException e) {
+            logger().error("Linux process sluttede med fejl {} ", commandList);
             e.printStackTrace();
         } catch (InterruptedException e) {
+            logger().error("Linux process sluttede med fejl {} ", commandList);
             e.printStackTrace();
         }
 

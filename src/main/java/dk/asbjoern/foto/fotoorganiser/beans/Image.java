@@ -95,4 +95,14 @@ public class Image {
     public void setSourceBibliotek(String sourceBibliotek) {
         this.sourceBibliotek = sourceBibliotek;
     }
+
+
+    @Override
+    public String toString() {
+        return "Image{" +
+                "md5sum='" + md5sum + '\'' +
+                ", parentPathOriginalLocation=" + parentPathOriginalLocation +
+                ", filename=" + filename +
+                '}';
+    }
 }
