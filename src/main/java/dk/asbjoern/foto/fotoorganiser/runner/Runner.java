@@ -25,6 +25,7 @@ public class Runner implements Loggable {
     private int originalCounter;
     private int directoryCounter;
     private int totalCounter;
+    private int linuxCopyCounter;
     ;
 
     @Value("${billedbiblioteker}")
@@ -41,9 +42,13 @@ public class Runner implements Loggable {
 
     public void run() {
 
+        Long startTid = System.currentTimeMillis();
+
+        Map<String, List<String>> moveCommands = new HashMap<>();
+
 
         try {
-            Map<String, List<String>> moveCommands = new HashMap<>();
+
 
             for (String sourceBibliotek : billedbiblioteker) {
 
@@ -79,68 +84,83 @@ public class Runner implements Loggable {
                 });
             }
 
-            System.out.println("Starter billedflytning");
+            System.out.println("Starter billedflytning - størrelsen på map med copycommands er: " + moveCommands.size());
             moveCommands.entrySet().stream().forEach(e -> {
 
                         logger().info("STARTKOPI: {}", e.getValue().toString());
                         linuxCommandExecuter.executeCommand(e.getValue());
+                        linuxCopyCounter++;
+
 
                     }
 
             );
         } catch (IOException e) {
             e.printStackTrace();
+            System.exit(1);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
 
-        System.out.println("Laver testoptælling");
+//        System.out.println("Laver testoptælling");
+//
+//        Set<String> testSetSource = new HashSet();
+//
+//        for (String sourceBibliotek : billedbiblioteker) {
+//
+//            try {
+//
+//
+//                Files.walk(Paths.get(sourceBibliotek)).forEach(path -> {
+//
+//                    File fil = path.toFile();
+//
+//                    if (fil.isFile()) {
+//                        testSetSource.add(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())));
+//                    }
+//                });
+//
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        Set<String> testSetDestination = new HashSet();
+//
+//        try {
+//
+//
+//            Files.walk(Paths.get(tilBibliotek)).forEach(path -> {
+//
+//                File fil = path.toFile();
+//
+//                if (fil.isFile()) {
+//                    testSetDestination.add(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())));
+//                }
+//            });
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
-        Set<String> testSetSource = new HashSet();
+        System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d, antal linuxcopyCommands: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter, linuxCopyCounter));
+//        System.out.println("Kildebibliotekerne indeholder " + testSetSource.size() + " antal unikke filer og destinationsmappen indeholder " + testSetDestination.size() + " antal unikke filer.");
 
-        for (String sourceBibliotek : billedbiblioteker) {
+//        testSetSource.removeAll(testSetDestination);
 
-            try {
+//        System.out.println("Flg filer mangler i destinationsmappe");
+//        testSetSource.stream().forEach(s ->
+//                {
+//                    System.out.println(moveCommands.get(s).get(1));
+//                }
+//        );
 
+        Long slutTid = System.currentTimeMillis();
 
-                Files.walk(Paths.get(sourceBibliotek)).forEach(path -> {
-
-                    File fil = path.toFile();
-
-                    if (fil.isFile()) {
-                        testSetSource.add(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())));
-                    }
-                });
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        Set<String> testSetDestination = new HashSet();
-
-        try {
-
-
-            Files.walk(Paths.get(tilBibliotek)).forEach(path -> {
-
-                File fil = path.toFile();
-
-                if (fil.isFile()) {
-                    testSetDestination.add(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())));
-                }
-            });
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
-        System.out.println("Kildebibliotekerne indeholder " + testSetSource.size() + " antal unikke filer og destinationsmappen indeholder " + testSetDestination.size() + " antal unikke filer.");
-
-        testSetSource.removeAll(testSetDestination);
+        System.out.println("Køretid sekunder: " + ((slutTid - startTid) / 1000));
 
 
     }
