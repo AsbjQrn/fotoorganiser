@@ -13,16 +13,22 @@ class TestCommandWriter extends Specification {
         CommandBuilder builder = new CommandMapBuilder();
 
         when:
-        Object o = builder.addToCommandMap("checksum", "stiFra1", "stiTil1", mapOfCommands)
+        Optional o = builder.addToCommandMap("checksum", "stiFra1", "stiTil1", mapOfCommands)
 
         then:
-        o == null
+        o.isPresent() == false
 
         when:
         o = builder.addToCommandMap("checksum", "stiFra1", "stiTil1", mapOfCommands)
 
         then:
-        o != null
+        o.isPresent() == true
+
+        when:
+        o = builder.addToCommandMap("checksumNy", "stiFra1", "stiTil1", mapOfCommands)
+
+        then:
+        o.isPresent() == false
 
 
     }

@@ -11,11 +11,11 @@ class CommandMapBuilder implements CommandBuilder {
     public static final String linuxKopi = "cp";
 
     @Override
-    public List<String> addToCommandMap(String checksum, String stiFra, String stiTil, Map<String, List<String>> mapOfCommands) {
+    public Optional<List<String>> addToCommandMap(String checksum, String stiFra, String stiTil, Map<String, List<String>> mapOfCommands) {
 
         List<String> command = Arrays.asList(linuxKopi, stiFra, stiTil);
 
-        return mapOfCommands.put(checksum, command);
+        return Optional.ofNullable(mapOfCommands.put(checksum, command));
 
     }
 
