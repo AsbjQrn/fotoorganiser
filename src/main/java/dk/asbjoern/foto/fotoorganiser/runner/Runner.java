@@ -1,6 +1,7 @@
 package dk.asbjoern.foto.fotoorganiser.runner;
 
 import dk.asbjoern.foto.fotoorganiser.beans.Image;
+import dk.asbjoern.foto.fotoorganiser.configuration.YMLConfiguration;
 import dk.asbjoern.foto.fotoorganiser.helpers.Loggable;
 import dk.asbjoern.foto.fotoorganiser.imagefactory.ImageFactory;
 import dk.asbjoern.foto.fotoorganiser.services.LinuxCommandExecuter;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -25,54 +27,44 @@ public class Runner implements Loggable {
     private int originalCounter;
     private int directoryCounter;
     private int totalCounter;
-    ;
+    private YMLConfiguration config;
 
-    @Value("${billedbiblioteker}")
-    private String[] billedbiblioteker;
-
-    @Value("${tilBibliotek}")
-    String tilBibliotek = "";
-
-    public Runner(ImageFactory imageFactory, LinuxCommandExecuter linuxCommandExecuter, CommandBuilder commandBuilder) {
+    public Runner(ImageFactory imageFactory, LinuxCommandExecuter linuxCommandExecuter, CommandBuilder commandBuilder, YMLConfiguration config) {
         this.imageFactory = imageFactory;
         this.linuxCommandExecuter = linuxCommandExecuter;
         this.commandBuilder = commandBuilder;
+        this.config = config;
     }
 
     public void run() {
 
-
-        Map<String, List<String>> moveCommandsMap = new HashMap<>();
-
+        Set<Image> images = new HashSet<>();
 
         try {
 
 
-            for (String sourceBibliotek : billedbiblioteker) {
+            for (Path sourcePath : config.getSourcePaths()) {
 
-                Files.walk(Paths.get(sourceBibliotek)).forEach(path -> {
+                Files.walk(sourcePath).forEach(path -> {
 
                     totalCounter++;
 
 
-                    if (path.toFile().isFile()) {
+                    if (Files.isRegularFile(path)) {
                         fileCounter++;
 
 
                         Image image = null;
                         try {
-                            image = imageFactory.createImage(path, sourceBibliotek);
+                            image = imageFactory.createImage(path, sourcePath);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
-
-                        Optional optional = commandBuilder.addToCommandMap(image.getMd5sum(), image.getOriginalLocation(), image.createAndGetNewLocation(), moveCommandsMap);
-
-                        if (optional.isPresent()) {
-                            duplicateCounter++;
-                        } else {
+                        if (images.add(image)) {
                             originalCounter++;
+                        } else {
+                            duplicateCounter++;
                         }
 
                     } else {
@@ -81,61 +73,17 @@ public class Runner implements Loggable {
                     }
 
                 });
+
+
+                System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
+
+                Long slutTid = System.currentTimeMillis();
+
+
+
             }
-
-
-            moveCommandsMap.entrySet().stream().forEach(e -> {
-
-                        logger().info("STARTKOPI: {}", e.getValue().toString());
-                        linuxCommandExecuter.executeCommand(e.getValue());
-
-
-                    }
-
-            );
-
-            System.out.println("moveCommandsMap size: " + moveCommandsMap.size());
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
-
-        System.out.println("Laver testoptælling");
-
-        Map<String, String> testMapSource = new HashMap<>();
-
-        for (String sourceBibliotek : billedbiblioteker) {
-
-            try {
-
-
-                Files.walk(Paths.get(sourceBibliotek)).forEach(path -> {
-
-                    File fil = path.toFile();
-
-                    if (fil.isFile()) {
-                        testMapSource.put(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())), fil.getAbsolutePath());
-                    }
-                });
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            System.exit(1);
-        }
-
-
-
-        System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d, antal linuxcopyCommands: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
-
-        Long slutTid = System.currentTimeMillis();
-
-        System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
-
-
     }
 }

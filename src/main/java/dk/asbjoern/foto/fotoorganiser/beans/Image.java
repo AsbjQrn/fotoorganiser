@@ -14,16 +14,13 @@ public class Image {
 
     private String md5sum;
 
-    private String sourceBibliotek;
-
-    private String originalLocation;
-
-    private String parentPathToNewLocation;
-
     /*
-    Stien før filnavnet /bib/bib1/bib2
-     */
-    private Path parentPathOriginalLocation;
+    * Top folder(s) original location*/
+    private Path sourcePath;
+
+    private Path pathOriginalLocation;
+
+    private Path pathToNewLocation;
 
     /*
     filnavn.jpg
@@ -55,28 +52,17 @@ public class Image {
         this.md5sum = md5sum;
     }
 
-    public String getOriginalLocation() {
-        return originalLocation;
+    public Path getPathOriginalLocation() {
+        return pathOriginalLocation;
     }
 
-    public void setOriginalLocation(String originalLocation) {
-        this.originalLocation = originalLocation;
+
+    public String getFilePathOriginalLocationAsString() {
+        return pathOriginalLocation.resolve(this.filename).toAbsolutePath().toString();
     }
 
-    public String getParentPathToNewLocation() {
-        return parentPathToNewLocation;
-    }
-
-    public void setParentPathToNewLocation(String parentPathToNewLocation) {
-        this.parentPathToNewLocation = parentPathToNewLocation;
-    }
-
-    public Path getParentPathOriginalLocation() {
-        return parentPathOriginalLocation;
-    }
-
-    public void setParentPathOriginalLocation(Path parentPathOriginalLocation) {
-        this.parentPathOriginalLocation = parentPathOriginalLocation;
+    public void setPathOriginalLocation(Path pathOriginalLocation) {
+        this.pathOriginalLocation = pathOriginalLocation;
     }
 
 
@@ -84,25 +70,51 @@ public class Image {
         this.filename = filename;
     }
 
-    public String createAndGetNewLocation(){
-        return getParentPathToNewLocation().toString() + "/" +  filename.toString();
+    public Path createAndGetNewLocation(){
+        return pathToNewLocation.resolve(filename);
     }
 
-    public String getSourceBibliotek() {
-        return sourceBibliotek;
+    public Path getSourcePath() {
+        return sourcePath;
     }
 
-    public void setSourceBibliotek(String sourceBibliotek) {
-        this.sourceBibliotek = sourceBibliotek;
+    public void setSourcePath(Path sourcePath) {
+        this.sourcePath = sourcePath;
     }
 
+    public Path getPathToNewLocation() {
+        return pathToNewLocation;
+    }
+
+    public void setPathToNewLocation(Path pathToNewLocation) {
+        this.pathToNewLocation = pathToNewLocation;
+    }
+
+    public Path getFilename() {
+        return filename;
+    }
 
     @Override
     public String toString() {
         return "Image{" +
                 "md5sum='" + md5sum + '\'' +
-                ", parentPathOriginalLocation=" + parentPathOriginalLocation +
+                ", pathOriginalLocation=" + pathOriginalLocation.toString() +
                 ", filename=" + filename +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Image image = (Image) o;
+
+        return md5sum.equals(image.md5sum);
+    }
+
+    @Override
+    public int hashCode() {
+        return md5sum.hashCode();
     }
 }

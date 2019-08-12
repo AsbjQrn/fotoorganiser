@@ -14,11 +14,9 @@ public interface Directorymaker {
 
 
 
-    String makeDirectory(Image image) throws IOException;
+    Path makeDirectory(Image image) throws IOException;
 
-    default void makeIfNotExists(String directory) throws IOException {
-
-        Path path = Paths.get(directory);
+    default void makeIfNotExists(Path path) throws IOException {
 
         if (!Files.exists(path)) {
             Files.createDirectories(path);

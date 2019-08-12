@@ -8,6 +8,6 @@ import java.nio.file.Path;
 
 public interface ImageFactory {
 
-    Image createImage(Path path, String sourceBibliotek) throws IOException;
+    Image createImage(Path path, Path sourcePath) throws IOException;
 
 }
