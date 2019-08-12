@@ -25,7 +25,7 @@ public class Runner implements Loggable {
     private int originalCounter;
     private int directoryCounter;
     private int totalCounter;
-    private int executedCommands;
+    ;
 
     @Value("${billedbiblioteker}")
     private String[] billedbiblioteker;
@@ -42,8 +42,11 @@ public class Runner implements Loggable {
     public void run() {
 
 
+        Map<String, List<String>> moveCommandsMap = new HashMap<>();
+
+
         try {
-            Map<String, List<String>> moveCommandsMap = new HashMap<>();
+
 
             for (String sourceBibliotek : billedbiblioteker) {
 
@@ -81,18 +84,17 @@ public class Runner implements Loggable {
             }
 
 
-            System.out.println("Starter billedflytning");
             moveCommandsMap.entrySet().stream().forEach(e -> {
 
-                linuxCommandExecuter.executeCommand(e.getValue());
-                executedCommands++;
+                        logger().info("STARTKOPI: {}", e.getValue().toString());
+                        linuxCommandExecuter.executeCommand(e.getValue());
+
 
                     }
 
             );
 
             System.out.println("moveCommandsMap size: " + moveCommandsMap.size());
-            System.out.println("udførte kommandoer: " + executedCommands);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -123,41 +125,16 @@ public class Runner implements Loggable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            System.exit(1);
         }
 
-        Map<String, String> testMapDestination = new HashMap<>();
-
-        try {
 
 
-            Files.walk(Paths.get(tilBibliotek)).forEach(path -> {
+        System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d, antal linuxcopyCommands: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
 
-                File fil = path.toFile();
-
-                if (fil.isFile()) {
-                    testMapDestination.put(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())), fil.getAbsolutePath());
-                }
-            });
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        testMapSource.entrySet().forEach(
-
-                e -> {
-                    if (!testMapDestination.containsKey(e.getKey())) {
-                        System.out.println("MANGLER: " + e.getKey() + " " + e.getValue());
-                    }
-
-                }
-
-        );
-
+        Long slutTid = System.currentTimeMillis();
 
         System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
-        System.out.println("Kildebibliotekerne indeholder " + testMapSource.size() + " antal unikke filer og destinationsmappen indeholder " + testMapDestination.size() + " antal unikke filer.");
 
 
     }
