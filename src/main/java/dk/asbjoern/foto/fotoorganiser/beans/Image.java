@@ -90,6 +90,14 @@ public class Image {
         this.pathToNewLocation = pathToNewLocation;
     }
 
+    public Path getPathOriginalLocationAndFilename(){
+        return pathOriginalLocation.resolve(filename);
+    }
+
+    public Path getPathToNewLocationAndFilename(){
+        return pathToNewLocation.resolve(filename);
+    }
+
     public Path getFilename() {
         return filename;
     }

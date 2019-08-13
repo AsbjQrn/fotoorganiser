@@ -4,23 +4,17 @@ import dk.asbjoern.foto.fotoorganiser.beans.Image;
 import dk.asbjoern.foto.fotoorganiser.configuration.YMLConfiguration;
 import dk.asbjoern.foto.fotoorganiser.helpers.Loggable;
 import dk.asbjoern.foto.fotoorganiser.imagefactory.ImageFactory;
-import dk.asbjoern.foto.fotoorganiser.services.LinuxCommandExecuter;
-import dk.asbjoern.foto.fotoorganiser.services.interfaces.CommandBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class Runner implements Loggable {
 
-    private LinuxCommandExecuter linuxCommandExecuter;
-    private CommandBuilder commandBuilder;
     private ImageFactory imageFactory;
     private int fileCounter;
     private int duplicateCounter;
@@ -29,14 +23,12 @@ public class Runner implements Loggable {
     private int totalCounter;
     private YMLConfiguration config;
 
-    public Runner(ImageFactory imageFactory, LinuxCommandExecuter linuxCommandExecuter, CommandBuilder commandBuilder, YMLConfiguration config) {
+    public Runner(ImageFactory imageFactory, YMLConfiguration config) {
         this.imageFactory = imageFactory;
-        this.linuxCommandExecuter = linuxCommandExecuter;
-        this.commandBuilder = commandBuilder;
         this.config = config;
     }
 
-    public void run() {
+    public void run() throws IOException {
 
         Set<Image> images = new HashSet<>();
 
@@ -85,5 +77,13 @@ public class Runner implements Loggable {
         } catch (Throwable t) {
             t.printStackTrace();
         }
+
+        System.out.println("uniquefiles found (ImagesSet): " + images.size());
+
+        for(Image image : images){
+            Files.copy(image.getPathOriginalLocationAndFilename(), image.getPathToNewLocationAndFilename());
+        }
+
+
     }
 }
