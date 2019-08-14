@@ -32,7 +32,7 @@ public class ImageFactoryDefault implements ImageFactory {
 
         Image image = new Image();
 
-        image.setSourcePath(sourcePath);
+        image.setBasePath(sourcePath);
 
         image.setPathOriginalLocation(path.getParent());
 

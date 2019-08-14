@@ -16,7 +16,7 @@ public class Image {
 
     /*
     * Top folder(s) original location*/
-    private Path sourcePath;
+    private Path basePath;
 
     private Path pathOriginalLocation;
 
@@ -74,12 +74,12 @@ public class Image {
         return pathToNewLocation.resolve(filename);
     }
 
-    public Path getSourcePath() {
-        return sourcePath;
+    public Path getBasePath() {
+        return basePath;
     }
 
-    public void setSourcePath(Path sourcePath) {
-        this.sourcePath = sourcePath;
+    public void setBasePath(Path basePath) {
+        this.basePath = basePath;
     }
 
     public Path getPathToNewLocation() {

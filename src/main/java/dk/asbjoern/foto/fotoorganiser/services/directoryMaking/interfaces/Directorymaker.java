@@ -16,10 +16,11 @@ public interface Directorymaker {
 
     Path makeDirectory(Image image) throws IOException;
 
-    default void makeIfNotExists(Path path) throws IOException {
+    default Path makeIfNotExists(Path path) throws IOException {
 
         if (!Files.exists(path)) {
             Files.createDirectories(path);
         }
+        return path;
     }
 }

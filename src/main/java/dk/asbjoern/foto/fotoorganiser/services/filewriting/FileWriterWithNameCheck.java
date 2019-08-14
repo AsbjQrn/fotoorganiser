@@ -30,13 +30,17 @@ public class FileWriterWithNameCheck implements FileWriter, Loggable {
     private Path makeNewFileName(Path fileName) throws Exception {
 
         String[] fileNameParts = fileName.toString().split(".");
-        if (fileNameParts.length > 2) throw new Exception("fileName is strange: " + fileName.toString());
-        String fileFirstName = fileNameParts[0];
-        String fileType = fileNameParts[1];
+
+        StringBuilder fileFirstName = new StringBuilder();
+        for (int i = 0; i < fileNameParts.length -2 ; i++) {
+            fileFirstName.append(fileNameParts[i]);
+        }
+
+        String fileType = fileNameParts[fileNameParts.length -1];
 
 
         renameNumber++;
-        return Paths.get(fileFirstName + RENAME_NAME + renameNumber + "." + fileType);
+        return Paths.get(fileFirstName.toString() + RENAME_NAME + renameNumber + "." + fileType);
 
     }
 

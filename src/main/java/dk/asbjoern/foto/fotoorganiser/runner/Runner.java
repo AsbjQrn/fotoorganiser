@@ -79,6 +79,8 @@ public class Runner implements Loggable {
             }
         } catch (Throwable t) {
             t.printStackTrace();
+            System.exit(1);
+
         }
 
         System.out.println("uniquefiles found (ImagesSet): " + images.size());

@@ -13,7 +13,6 @@ import java.nio.file.Path;
 class DirectorymakerNoExif implements Directorymaker {
 
 
-
     private YMLConfiguration config;
 
     public DirectorymakerNoExif(YMLConfiguration config) {
@@ -24,16 +23,8 @@ class DirectorymakerNoExif implements Directorymaker {
     @Override
     public Path makeDirectory(Image image) throws IOException {
 
-
-        int numberOfNamesInSourceLibrary = image.getSourcePath().getNameCount();
-        int numberOfNamesInOriginalLocationOfImage = image.getPathOriginalLocation().getNameCount();
-
-        Path newLocation = config.getNoExifPath().resolve(image.getPathOriginalLocation().subpath(numberOfNamesInSourceLibrary, numberOfNamesInOriginalLocationOfImage ));
-
-        makeIfNotExists(newLocation);
-
-        return newLocation;
-
+        //Hvis base og billedPath er lige lange betyder det at billedet nye lokation skal være i parentdirectory
+        return makeIfNotExists(image.getBasePath().getNameCount() == image.getPathOriginalLocation().getNameCount() ? config.getNoExifPath() : config.getNoExifPath().resolve(image.getPathOriginalLocation().subpath(image.getBasePath().getNameCount(), image.getPathOriginalLocation().getNameCount())));
 
     }
 }
