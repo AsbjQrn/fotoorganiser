@@ -2,35 +2,32 @@ package dk.asbjoern.foto.fotoorganiser.services.directoryMaking;
 
 
 import dk.asbjoern.foto.fotoorganiser.beans.Image;
+import dk.asbjoern.foto.fotoorganiser.configuration.YMLConfiguration;
 import dk.asbjoern.foto.fotoorganiser.services.directoryMaking.interfaces.Directorymaker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 @Service
 class DirectoryMakerExif implements Directorymaker {
 
 
-    @Value("${tilBibliotek}")
-    String tilBibliotek;
+    private YMLConfiguration config;
 
-
+    public DirectoryMakerExif(YMLConfiguration ymlConfiguration) {
+        this.config = ymlConfiguration;
+    }
 
     @Override
-    public String makeDirectory(Image image) throws IOException {
+    public Path makeDirectory(Image image) throws IOException {
 
 
-        StringBuilder stringBuilder = new StringBuilder(tilBibliotek);
-
-
-        stringBuilder.append("/");
-        stringBuilder.append(image.getDateTaken().get().getYear());
-        stringBuilder.append("/");
-        stringBuilder.append(image.getDateTaken().get().getMonth());
-
-        String newLocation = stringBuilder.toString();
+        Path yearMonthPath = Paths.get(Integer.toString(image.getDateTaken().get().getYear()), image.getDateTaken().get().getMonth().toString());
+        Path newLocation = config.getDestinationsPath().resolve(yearMonthPath);
 
         makeIfNotExists(newLocation);
 

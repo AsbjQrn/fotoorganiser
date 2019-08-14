@@ -5,5 +5,5 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface CommandBuilder {
-    List<String> addToCommandMap(String checksum, String stiFra, String stiTil, Map<String, List<String>> mapOfCommands);
+    Optional addToCommandMap(String checksum, String stiFra, String stiTil, Map<String, List<String>> mapOfCommands);
 }

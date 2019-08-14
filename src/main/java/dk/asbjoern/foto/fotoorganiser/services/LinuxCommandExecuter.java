@@ -47,9 +47,11 @@ public class LinuxCommandExecuter implements CommandExecuter, Loggable {
         } catch (IOException e) {
             logger().error("Linux process sluttede med fejl {} ", commandList);
             e.printStackTrace();
+            System.exit(1);
         } catch (InterruptedException e) {
             logger().error("Linux process sluttede med fejl {} ", commandList);
             e.printStackTrace();
+            System.exit(1);
         }
 
         return output.toString();

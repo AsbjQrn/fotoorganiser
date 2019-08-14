@@ -5,7 +5,6 @@ import dk.asbjoern.foto.fotoorganiser.services.LinuxCommandExecuter;
 import dk.asbjoern.foto.fotoorganiser.services.directoryMaking.interfaces.DirectoryMakerFactory;
 import dk.asbjoern.foto.fotoorganiser.services.directoryMaking.interfaces.Directorymaker;
 import dk.asbjoern.foto.fotoorganiser.services.interfaces.ExifService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,17 +28,15 @@ public class ImageFactoryDefault implements ImageFactory {
     }
 
     @Override
-    public Image createImage(Path path, String sourceBibliotek) throws IOException {
+    public Image createImage(Path path, Path sourcePath) throws IOException {
 
         Image image = new Image();
 
-        image.setSourceBibliotek(sourceBibliotek);
+        image.setSourcePath(sourcePath);
 
-        image.setParentPathOriginalLocation(path.getParent());
+        image.setPathOriginalLocation(path.getParent());
 
         image.setFilename(path.getFileName());
-
-        image.setOriginalLocation(path.toFile().getAbsolutePath());
 
         image.setMetadata(exifService.readExif(path.toFile()));
 
@@ -47,16 +44,16 @@ public class ImageFactoryDefault implements ImageFactory {
             image.setDateTaken(exifService.readExifDate(image.getMetadata()));
         }
 
-        String outputFromLinux = linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", image.getOriginalLocation()));
+        String outputFromLinux = linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", image.getFilePathOriginalLocationAsString()));
         String md5sum =  outputFromLinux.substring(0,outputFromLinux.indexOf(" "));
         image.setMd5sum(md5sum);
 
-        image.setParentPathToNewLocation(makeNewDirectory(image));
+        image.setPathToNewLocation(makeNewDirectory(image));
 
         return image;
     }
 
-    private String makeNewDirectory(Image image) throws IOException {
+    private Path makeNewDirectory(Image image) throws IOException {
         Directorymaker directorymaker = directoryMakerFactory.produceDirectoryMaker(image.getDateTaken().isPresent());
         return directorymaker.makeDirectory(image);
     }

@@ -1,79 +1,65 @@
 package dk.asbjoern.foto.fotoorganiser.runner;
 
 import dk.asbjoern.foto.fotoorganiser.beans.Image;
+import dk.asbjoern.foto.fotoorganiser.configuration.YMLConfiguration;
 import dk.asbjoern.foto.fotoorganiser.helpers.Loggable;
 import dk.asbjoern.foto.fotoorganiser.imagefactory.ImageFactory;
-import dk.asbjoern.foto.fotoorganiser.services.LinuxCommandExecuter;
-import dk.asbjoern.foto.fotoorganiser.services.interfaces.CommandBuilder;
-import org.springframework.beans.factory.annotation.Value;
+import dk.asbjoern.foto.fotoorganiser.services.filewriting.FileWriter;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class Runner implements Loggable {
 
-    private LinuxCommandExecuter linuxCommandExecuter;
-    private CommandBuilder commandBuilder;
     private ImageFactory imageFactory;
     private int fileCounter;
     private int duplicateCounter;
     private int originalCounter;
     private int directoryCounter;
     private int totalCounter;
-    private int linuxCopyCounter;
-    ;
+    private YMLConfiguration config;
+    private FileWriter fileWriter;
 
-    @Value("${billedbiblioteker}")
-    private String[] billedbiblioteker;
-
-    @Value("${tilBibliotek}")
-    String tilBibliotek = "";
-
-    public Runner(ImageFactory imageFactory, LinuxCommandExecuter linuxCommandExecuter, CommandBuilder commandBuilder) {
+    public Runner(ImageFactory imageFactory, YMLConfiguration config, FileWriter fileWriter) {
         this.imageFactory = imageFactory;
-        this.linuxCommandExecuter = linuxCommandExecuter;
-        this.commandBuilder = commandBuilder;
+        this.config = config;
+        this.fileWriter = fileWriter;
     }
 
-    public void run() {
+    public void run() throws Exception {
 
-        Long startTid = System.currentTimeMillis();
-
-        Map<String, List<String>> moveCommands = new HashMap<>();
-
+        Set<Image> images = new HashSet<>();
 
         try {
 
 
-            for (String sourceBibliotek : billedbiblioteker) {
+            for (Path sourcePath : config.getSourcePaths()) {
 
-                Files.walk(Paths.get(sourceBibliotek)).forEach(path -> {
+                Files.walk(sourcePath).forEach(path -> {
 
                     totalCounter++;
 
 
-                    if (path.toFile().isFile()) {
+                    if (Files.isRegularFile(path)) {
                         fileCounter++;
 
 
                         Image image = null;
                         try {
-                            image = imageFactory.createImage(path, sourceBibliotek);
+                            image = imageFactory.createImage(path, sourcePath);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
-                        if (commandBuilder.addToCommandMap(image.getMd5sum(), image.getOriginalLocation(), image.createAndGetNewLocation(), moveCommands) != null) {
-                            logger().info("DUPLICATE: {}", image.toString());
-                            duplicateCounter++;
-                        } else {
-                            logger().info("ORIGINAL: {}", image.toString());
+                        if (images.add(image)) {
                             originalCounter++;
+                        } else {
+                            duplicateCounter++;
                         }
 
                     } else {
@@ -82,85 +68,28 @@ public class Runner implements Loggable {
                     }
 
                 });
+
+
+                System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter));
+
+                Long slutTid = System.currentTimeMillis();
+
+
+
             }
-
-            System.out.println("Starter billedflytning - størrelsen på map med copycommands er: " + moveCommands.size());
-            moveCommands.entrySet().stream().forEach(e -> {
-
-                        logger().info("STARTKOPI: {}", e.getValue().toString());
-                        linuxCommandExecuter.executeCommand(e.getValue());
-                        linuxCopyCounter++;
-
-
-                    }
-
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
 
-//        System.out.println("Laver testoptælling");
-//
-//        Set<String> testSetSource = new HashSet();
-//
-//        for (String sourceBibliotek : billedbiblioteker) {
-//
-//            try {
-//
-//
-//                Files.walk(Paths.get(sourceBibliotek)).forEach(path -> {
-//
-//                    File fil = path.toFile();
-//
-//                    if (fil.isFile()) {
-//                        testSetSource.add(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())));
-//                    }
-//                });
-//
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        Set<String> testSetDestination = new HashSet();
-//
-//        try {
-//
-//
-//            Files.walk(Paths.get(tilBibliotek)).forEach(path -> {
-//
-//                File fil = path.toFile();
-//
-//                if (fil.isFile()) {
-//                    testSetDestination.add(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", fil.getAbsolutePath())));
-//                }
-//            });
-//
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        System.out.println("uniquefiles found (ImagesSet): " + images.size());
 
-        System.out.println(String.format("Antal total(mapper og filer): %d,  Antal mapper: %d, Antal filer: %d, Antal duplikater: %d, antal originaler: %d, antal linuxcopyCommands: %d ", totalCounter, directoryCounter, fileCounter, duplicateCounter, originalCounter, linuxCopyCounter));
-//        System.out.println("Kildebibliotekerne indeholder " + testSetSource.size() + " antal unikke filer og destinationsmappen indeholder " + testSetDestination.size() + " antal unikke filer.");
+        for(Image image : images){
 
-//        testSetSource.removeAll(testSetDestination);
 
-//        System.out.println("Flg filer mangler i destinationsmappe");
-//        testSetSource.stream().forEach(s ->
-//                {
-//                    System.out.println(moveCommands.get(s).get(1));
-//                }
-//        );
+            fileWriter.writeFile(image.getPathOriginalLocation(), image.getPathToNewLocation(), image.getFilename());
 
-        Long slutTid = System.currentTimeMillis();
-
-        System.out.println("Køretid sekunder: " + ((slutTid - startTid) / 1000));
+            Files.copy(image.getPathOriginalLocationAndFilename(), image.getPathToNewLocationAndFilename());
+        }
 
 
     }
