@@ -1,39 +1,42 @@
 package dk.asbjoern.foto.fotoorganiser.services.filewriting;
 
 import dk.asbjoern.foto.fotoorganiser.helpers.Loggable;
+import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+
+@Service
 public class FileWriterWithNameCheck implements FileWriter, Loggable {
 
     private final static String RENAME_NAME = "-renamed";
-    private int renameNumber = 0;
+    private int renameNumber;
 
-    public void writeFile(String absoluteFilePath, String fileName) throws IOException {
+    public void writeFile(Path originalpath, Path newPath, Path fileName) throws Exception {
 
-        boolean notCreated = true;
 
-        String wholeName = absoluteFilePath +  "/" + fileName;
+        renameNumber = 0;
 
-        while (notCreated) {
-            File image = new File(wholeName);
+        while (Files.exists(newPath.resolve(fileName))) {
+            fileName = makeNewFileName(fileName);
 
-            if (image.exists()) {
-                wholeName = absoluteFilePath + renameFile(fileName);
-            } else {
-                image.createNewFile();
-                System.out.println(image.getAbsolutePath());
-            }
         }
 
 
     }
 
-    private String renameFile(String fileName) {
+    private Path makeNewFileName(Path fileName) throws Exception {
+
+        String[] fileNameParts = fileName.toString().split(".");
+        if (fileNameParts.length > 2) throw new Exception("fileName is strange: " + fileName.toString());
+        String fileFirstName = fileNameParts[0];
+        String fileType = fileNameParts[1];
+
 
         renameNumber++;
-        return fileName + RENAME_NAME + renameNumber;
+        return Paths.get(fileFirstName + RENAME_NAME + renameNumber + "." + fileType);
 
     }
 

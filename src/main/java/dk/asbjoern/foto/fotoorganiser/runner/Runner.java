@@ -4,6 +4,7 @@ import dk.asbjoern.foto.fotoorganiser.beans.Image;
 import dk.asbjoern.foto.fotoorganiser.configuration.YMLConfiguration;
 import dk.asbjoern.foto.fotoorganiser.helpers.Loggable;
 import dk.asbjoern.foto.fotoorganiser.imagefactory.ImageFactory;
+import dk.asbjoern.foto.fotoorganiser.services.filewriting.FileWriter;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -22,13 +23,15 @@ public class Runner implements Loggable {
     private int directoryCounter;
     private int totalCounter;
     private YMLConfiguration config;
+    private FileWriter fileWriter;
 
-    public Runner(ImageFactory imageFactory, YMLConfiguration config) {
+    public Runner(ImageFactory imageFactory, YMLConfiguration config, FileWriter fileWriter) {
         this.imageFactory = imageFactory;
         this.config = config;
+        this.fileWriter = fileWriter;
     }
 
-    public void run() throws IOException {
+    public void run() throws Exception {
 
         Set<Image> images = new HashSet<>();
 
@@ -81,6 +84,10 @@ public class Runner implements Loggable {
         System.out.println("uniquefiles found (ImagesSet): " + images.size());
 
         for(Image image : images){
+
+
+            fileWriter.writeFile(image.getPathOriginalLocation(), image.getPathToNewLocation(), image.getFilename());
+
             Files.copy(image.getPathOriginalLocationAndFilename(), image.getPathToNewLocationAndFilename());
         }
 

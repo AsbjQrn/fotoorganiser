@@ -1,3 +1,5 @@
-sourceLibs: /home/askou/Desktop/billeder
-destinationLib: /home/askou/Desktop/billederUdenDuplikater
+#sourceLibs: /home/askou/Desktop/billeder
+#destinationLib: /home/askou/Desktop/billederUdenDuplikater
+sourceLibs: /home/asbjoern/Desktop/hovedmappe, /home/asbjoern/Desktop/iphoto
+destinationLib: /home/asbjoern/Desktop/fotoorganiserOutput
 noExifFolderName: noExif
