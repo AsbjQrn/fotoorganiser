@@ -47,7 +47,9 @@ public class ImageFactoryDefault implements ImageFactory {
             image.setDateTaken(exifService.readExifDate(image.getMetadata()));
         }
 
-        image.setMd5sum(linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", image.getOriginalLocation())));
+        String outputFromLinux = linuxCommandExecuter.executeCommand(Arrays.asList("md5sum", image.getOriginalLocation()));
+        String md5sum =  outputFromLinux.substring(0,outputFromLinux.indexOf(" "));
+        image.setMd5sum(md5sum);
 
         image.setParentPathToNewLocation(makeNewDirectory(image));
 

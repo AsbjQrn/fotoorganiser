@@ -52,9 +52,7 @@ public class LinuxCommandExecuter implements CommandExecuter, Loggable {
             e.printStackTrace();
         }
 
-
-        String result = output.toString();
-        return result.substring(0, result.indexOf(" ") + 1);
+        return output.toString();
 
     }
 
