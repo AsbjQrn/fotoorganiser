@@ -90,7 +90,7 @@ public class Runner implements Loggable {
 
             fileWriter.writeFile(image.getPathOriginalLocation(), image.getPathToNewLocation(), image.getFilename());
 
-            Files.copy(image.getPathOriginalLocationAndFilename(), image.getPathToNewLocationAndFilename());
+
         }
 
 

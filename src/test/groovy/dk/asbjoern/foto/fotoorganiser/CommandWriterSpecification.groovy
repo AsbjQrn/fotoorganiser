@@ -4,7 +4,7 @@ import dk.asbjoern.foto.fotoorganiser.services.CommandMapBuilder
 import dk.asbjoern.foto.fotoorganiser.services.interfaces.CommandBuilder
 import spock.lang.Specification
 
-class TestCommandWriter extends Specification {
+class CommandWriterSpecification extends Specification {
 
 
     def "Test at duplikater forårsager returværdi"() {
