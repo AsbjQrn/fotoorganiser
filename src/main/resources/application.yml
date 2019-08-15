@@ -1,7 +1,5 @@
-sourceLibs: /media/asbjoern/925bd160-9cb1-4f8c-b329-1a01a1555203/hovedmappe, /media/asbjoern/925bd160-9cb1-4f8c-b329-1a01a1555203/iphoto
-destinationLib: /media/asbjoern/925bd160-9cb1-4f8c-b329-1a01a1555203/fotoOrganiserOutput
-#sourceLibs: /home/askou/Desktop/billeder
-#destinationLib: /home/askou/Desktop/billederUdenDuplikater
-#sourceLibs: /home/asbjoern/Desktop/hovedmappe, /home/asbjoern/Desktop/iphoto
-#destinationLib: /home/asbjoern/Desktop/fotoorganiserOutput
+#sourceLibs: /media/asbjoern/925bd160-9cb1-4f8c-b329-1a01a1555203/hovedmappe, /media/asbjoern/925bd160-9cb1-4f8c-b329-1a01a1555203/iphoto
+#destinationLib: /media/asbjoern/925bd160-9cb1-4f8c-b329-1a01a1555203/fotoOrganiserOutput
+sourceLibs: /home/asbjoern/Desktop/hovedmappe, /home/asbjoern/Desktop/iphoto
+destinationLib: /home/asbjoern/Desktop/fotoorganiserOutput
 noExifFolderName: noExif

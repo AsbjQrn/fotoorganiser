@@ -13,15 +13,15 @@ public class FileWriterWithNameCheck implements FileWriter, Loggable {
 
     private static int renameNumber = 0;
 
-    public void writeFile(Path originalpath, Path newPath, Path fileNameThatMightExist) throws Exception {
+    public void writeFile(Path originalpath, Path newPath, Path oldFileName) throws Exception {
 
-        Path newFileName = fileNameThatMightExist;
+        Path newFileName = oldFileName;
 
         while (Files.exists(newPath.resolve(newFileName))) {
             newFileName = makeNewFileName(newFileName);
         }
 
-        Files.copy(originalpath, newPath.resolve(newFileName));
+        Files.copy(originalpath.resolve(oldFileName), newPath.resolve(newFileName));
 
     }
 
