@@ -6,7 +6,6 @@ import com.drew.metadata.Metadata;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.util.Optional;
 
