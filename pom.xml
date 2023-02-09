@@ -39,7 +39,7 @@
         <dependency>
             <groupId>com.drewnoakes</groupId>
             <artifactId>metadata-extractor</artifactId>
-            <version>LATEST</version>
+            <version>2.18.0</version>
         </dependency>
 
         <dependency>
